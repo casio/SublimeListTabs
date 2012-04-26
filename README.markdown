@@ -8,9 +8,12 @@ demand when I need it.
 
 To install it simply 
 
-  cd 
+    cd ~/Library/Application\ Support/Sublime\ Text\ 2/Packages/
+    git clone https://mads379@github.com/mads379/SublimeListTabs.git
 
-Now bind it 
+Now add a key-binding
+
+    { "keys": ["super+t"], "command": "list_tabs"},
 
 # TODO
 
