@@ -1,4 +1,4 @@
-import sublime, sublime_plugin
+import sublime, sublime_plugin, os
 
 class ListTabsCommand(sublime_plugin.WindowCommand):
   """
@@ -27,10 +27,7 @@ class ListTabsCommand(sublime_plugin.WindowCommand):
     def callback(index):
       if index != -1:
         self.window.focus_view(views[index])
-
-    
-    open_files = [ [v.file_name().split("/").pop(), v.file_name()] for v in views]
+    open_files = [ [os.path.split(v.file_name())[1], v.file_name()] for v in views]
 
     self.window.show_quick_panel(open_files, callback)
-
 
