@@ -17,6 +17,9 @@ class ListTabsCommand(sublime_plugin.WindowCommand):
     /Mads
   """
 
+  # Keeps the views that have most recently been visited.
+  stack = []
+
   def description():
     "Navigate to open tabs."
 
@@ -26,8 +29,16 @@ class ListTabsCommand(sublime_plugin.WindowCommand):
 
     def callback(index):
       if index != -1:
+        ListTabsCommand.stack.append(self.window.active_view())
         self.window.focus_view(views[index])
-    open_files = [ [os.path.split(v.file_name())[1], v.file_name()] for v in views]
+
+    def itm(v):
+      if v.file_name() == None:
+        return ["untitled-" + str(v.id()), "Unsaved document"]
+      else: 
+        return [os.path.split(v.file_name())[1], v.file_name()]
+
+    open_files = [ itm(v) for v in views]
 
     self.window.show_quick_panel(open_files, callback)
 
