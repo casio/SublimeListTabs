@@ -17,28 +17,53 @@ class ListTabsCommand(sublime_plugin.WindowCommand):
     /Mads
   """
 
-  # Keeps the views that have most recently been visited.
-  stack = []
+  # Keeps a stack of the most recent visited views for each window
+  # i.e. it's a Map from Windows to a Stack of views.
+  stack_map = {}
 
   def description():
     "Navigate to open tabs."
 
   def run(self):
-
+    # The views that are open in this group
     views = self.window.views_in_group(self.window.active_group())    
+
+    # Re-arrange them such that the most recent one is on top.
+    if len(self.stack_for_window()) > 0:
+      recent = self.stack_for_window().pop()
+      print(id(recent))
+      f = lambda x: self.name_for_view(x) != self.name_for_view(recent)
+      print([id(v) for v in views])
+      views = [recent] + filter(f, views)
+
 
     def callback(index):
       if index != -1:
-        ListTabsCommand.stack.append(self.window.active_view())
+        self.stack_for_window().append(self.window.active_view())
         self.window.focus_view(views[index])
 
     def itm(v):
       if v.file_name() == None:
-        return ["untitled-" + str(v.id()), "Unsaved document"]
+        return [self.name_for_view(v), "Unsaved document"]
       else: 
-        return [os.path.split(v.file_name())[1], v.file_name()]
+        return [self.name_for_view(v), v.file_name()]
 
     open_files = [ itm(v) for v in views]
 
     self.window.show_quick_panel(open_files, callback)
 
+  def name_for_view(self, v): 
+    """Given a view, create a string used as display name for
+       that view. """
+    if v.file_name() == None:
+      return "untitled-" + str(v.id())
+    else: 
+      return os.path.split(v.file_name())[1]
+
+  def stack_for_window(self):
+    """Returns the stack of views for the current window."""
+    stack = ListTabsCommand.stack_map.get(self.window)
+    if stack == None:
+      stack = []
+      ListTabsCommand.stack_map.setdefault(self.window, stack)
+    return stack
