@@ -31,9 +31,7 @@ class ListTabsCommand(sublime_plugin.WindowCommand):
     # Re-arrange them such that the most recent one is on top.
     if len(self.stack_for_window()) > 0:
       recent = self.stack_for_window().pop()
-      print(id(recent))
       f = lambda x: self.name_for_view(x) != self.name_for_view(recent)
-      print([id(v) for v in views])
       views = [recent] + filter(f, views)
 
 
